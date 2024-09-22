@@ -53,7 +53,7 @@
 		local overwatchZones = ::Tactical.Entities.getWatchersByActor(this);
 
 		if (overwatchZones.len() == 0) // no watcher found
-			return setLastStepTile(__original(_tile, _levelDifference), _tile);
+			return setLastStepTile(ret, _tile);
 
 		::MSU.Array.shuffle(overwatchZones); // let them be randomized
 		local self = this;
