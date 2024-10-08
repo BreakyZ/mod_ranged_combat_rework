@@ -24,7 +24,7 @@
 	q.onAfterUpdate = @(__original) function( _properties )
 	{
 		__original(_properties);
-		this.m.DirectDamageMult = _properties.IsSpecializedInCrossbows ? 0.6 : 0.5;
+		this.m.DirectDamageMult = _properties.IsSpecializedInCrossbows ? 0.7 : 0.5;
 	}
 
 	q.onAnySkillUsed <- function( _skill, _targetEntity, _properties )

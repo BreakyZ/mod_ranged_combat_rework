@@ -15,6 +15,7 @@
 {
 	// define mod class of this mod
 	::ModRangedCombatRework.Mod <- ::MSU.Class.Mod(::ModRangedCombatRework.ID, ::ModRangedCombatRework.Version, ::ModRangedCombatRework.Name);
+	if (!("Is_SSU_Exist" in this.getroottable())) ::Is_SSU_Exist <- ::mods_getRegisteredMod("mod_sellswords") != null;
 
 	// load hook files
 	::include("mod_ranged_combat_rework/load.nut");

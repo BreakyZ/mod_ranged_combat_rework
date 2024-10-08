@@ -8,25 +8,38 @@
 
 	q.onGetHitFactors = @(__original) function ( _skill, _targetTile, _tooltip )
 	{
-		local rdef = this.getContainer().getActor().getCurrentProperties().getRangedDefense();
-
+		local bonus = getBonus() / 100;
+		local actor = this.getContainer().getActor();
+		local item = actor.getMainhandItem();
 		if (_skill.isRanged())
 		{
 			local actor = this.getContainer().getActor();
-			if (_skill.getID() == "actives.shoot_bolt" || _skill.getID() == "actives.shoot_stake" || _skill.getID() == "actives.quick_shot" || _skill.getID() == "actives.sling_stone" || _skill.getID() == "actives.legend_shoot_stone")
+			if (_skill.isRanged())
 			{
-				if (actor.getTile().getDistanceTo(_targetTile) <= 4)
+				switch (true)
 				{
-					_tooltip.push({
-						id = 1,
-						type = "text",
-						icon = "ui/tooltips/positive.png",
-						text = this.getBonus() + "% more damage \n" + " " + this.getName()
-					});
+					case _skill.getID() == "actives.shoot_bolt":
+					case _skill.getID() == "actives.shoot_stake":
+					case _skill.getID() == "actives.quick_shot":
+					case _skill.getID() == "actives.sling_stone":
+					case _skill.getID() == "actives.legend_shoot_stone":
+					{
+						if (actor.getTile().getDistanceTo(_targetEntity.getTile()) <= 4)
+							return;
+						{
+							_tooltip.push({
+								id = 1,
+								type = "text",
+								icon = "ui/tooltips/positive.png",
+								text = this.getBonus() + "% more damage \n" + " " + this.getName()
+							});
+						}
+						return;
+					}
+					case !item.isItemType(this.Const.Items.ItemType.RangedWeapon):
+					case !item.isWeaponType(this.Const.Items.WeaponType.Throwing) && !item.isWeaponType(this.Const.Items.WeaponType.Firearm):
+						return;
 				}
-			}
-			else if (actor.getMainhandItem().isWeaponType(this.Const.Items.WeaponType.Throwing))
-			{
 				_tooltip.push({
 					id = 1,
 					type = "text",
@@ -43,25 +56,32 @@
 			return;
 
 		local bonus = getBonus() / 100;
-		local negbonus = 0
 		local actor = this.getContainer().getActor();
+		local item = actor.getMainhandItem();
 
 		if (_skill.isRanged())
 		{
-			if (_skill.getID() == "actives.shoot_bolt" || _skill.getID() == "actives.shoot_stake" || _skill.getID() == "actives.quick_shot" || _skill.getID() == "actives.sling_stone" || _skill.getID() == "actives.legend_shoot_stone")
+			switch (true)
 			{
-				if (actor.getTile().getDistanceTo(_targetEntity.getTile()) <= 4)
+				case _skill.getID() == "actives.shoot_bolt":
+				case _skill.getID() == "actives.shoot_stake":
+				case _skill.getID() == "actives.quick_shot":
+				case _skill.getID() == "actives.sling_stone":
+				case _skill.getID() == "actives.legend_shoot_stone":
+				case actor.getTile().getDistanceTo(_targetEntity.getTile()) <= 4
 				{
-					this.m.ActionPointCost -= 1;
-					_properties.DamageRegularMult *= 1 + bonus;
-					_properties.DamageArmorMult *= 1 + bonus;
+					_properties.DamageRegularMult *= 1.0 + bonus;
+					_properties.DamageArmorMult *= 1.0 + bonus;
+					if (actor.getSkills().hasSkill("perk.legend_heightened_reflexes"))
+						this.m.ActionPointCost -= 1;
+					return;
 				}
+				case !item.isItemType(this.Const.Items.ItemType.RangedWeapon):
+				case !item.isWeaponType(this.Const.Items.WeaponType.Throwing) && item.isWeaponType(this.Const.Items.WeaponType.Firearm):
+					return;
 			}
-			else if (actor.getMainhandItem().isWeaponType(this.Const.Items.WeaponType.Throwing))
-			{
-				_properties.DamageRegularMult *= 1 + bonus;
-				_properties.DamageArmorMult *= 1 + bonus;
-			}
+			_properties.DamageRegularMult *= 1 + bonus;
+			_properties.DamageArmorMult *= 1 + bonus;
 		}
 	}
 
@@ -91,13 +111,16 @@
 		local tooltip = this.skill.getTooltip();
 		local actor = this.getContainer().getActor();
 		local bonus = getBonus();
-		
-		tooltip.push({
-			id = 6,
-			type = "text",
-			icon = "ui/icons/special.png",
-			text = "Increases your damage done by [color=" + this.Const.UI.Color.PositiveValue + "]" + bonus + "%[/color]."
-		});
+
+		if (actor.getMainhandItem().isWeaponType(this.Const.Items.WeaponType.Firearm && actor.getMainhandItem().isItemType(this.Const.Items.ItemType.RangedWeapon)))
+		{
+			tooltip.push({
+				id = 6,
+				type = "text",
+				icon = "ui/icons/special.png",
+				text = "Increases your damage done by [color=" + this.Const.UI.Color.PositiveValue + "]" + bonus + "%[/color]."
+			});
+		}
 
 		if (actor.getItems().getItemAtSlot(this.Const.ItemSlot.Mainhand) != null)
 		{
